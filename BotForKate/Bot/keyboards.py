@@ -1,6 +1,11 @@
+import asyncio
+
 from aiogram.types import KeyboardButton, InlineKeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
-def main_keyboard():
+from CBFactories import ThemesCBFactory
+
+
+async def main_keyboard():
     builder = ReplyKeyboardBuilder()
     btn1 = KeyboardButton(text='Выбрать тему')
     btn2 = KeyboardButton(text='Все вопросы')
@@ -10,10 +15,15 @@ def main_keyboard():
     markup = builder.as_markup(resize_keyboard=True)
     return markup
 
-def themes_inline_keyboard(themes):
+async def themes_inline_keyboard(themes):
     builder = InlineKeyboardBuilder()
     for theme in themes:
-        builder.add(InlineKeyboardButton(text=theme, callback_data=f'theme_{theme}'))
+        theme_name = theme['name']
+        builder.add(InlineKeyboardButton(
+            text=theme_name,
+            callback_data=ThemesCBFactory(theme=theme_name).pack()
+        )
+    )
 
     builder.adjust(1)
     murkup = builder.as_markup()

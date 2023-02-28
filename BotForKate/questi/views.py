@@ -10,6 +10,12 @@ class ThemeView(APIView):
         return Response(ThemeSerializer(themes, many=True).data)
 
 
+    def post(self, request: Request):
+        theme_pk = Theme.objects.get(name=request.data['name']).pk
+        questions = Question.objects.filter(theme=theme_pk)
+        return Response(ThemeSerializer(questions, many=True).data)
+
+
 class QuestionView(APIView):
     def get(self, request: Request):
         questions = Question.objects.all()
