@@ -4,6 +4,9 @@ class ThemeForm(forms.ModelForm):
     class Meta:
         model = Theme
         fields = ('name',)
+        widgets = {
+            'name': forms.TextInput()
+        }
 
 
 class QuestionForm(forms.ModelForm):
