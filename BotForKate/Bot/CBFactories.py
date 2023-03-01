@@ -8,3 +8,4 @@ class ThemesCBFactory(CallbackData, prefix='themes'):
 class AnswerCBFactory(CallbackData, prefix='answers'):
     action: str
     val: Optional[bool]
+    theme: str | None

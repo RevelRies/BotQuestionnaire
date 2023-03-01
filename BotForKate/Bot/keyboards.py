@@ -31,22 +31,31 @@ async def themes_inline_keyboard(themes):
     return murkup
 
 # клавиатура ответов которая выводится после получения вопроса
-async def get_answers_inline_keyboard(answers):
+async def get_answers_inline_keyboard(answers, theme=None):
     builder = InlineKeyboardBuilder()
 
     # кнопки для возврата в главное меню и следующего вопроса
     builder.add(InlineKeyboardButton(text='Главное меню',
-                                     callback_data=AnswerCBFactory(action='main_menu').pack()),
-                InlineKeyboardButton(text='Следующий',
-                                     callback_data=AnswerCBFactory(action='next').pack())
-                )
+                                     callback_data=AnswerCBFactory(action='main_menu').pack()))
+
+    # если нужен следующий вопрос по определенной тебе то кнопке "Следующий" добавляется theme
+    if theme:
+        builder.add(InlineKeyboardButton(
+            text='Следующий',
+            callback_data=AnswerCBFactory(action='next', theme=theme).pack())
+                   )
+    else:
+        builder.add(InlineKeyboardButton(
+            text='Следующий',
+            callback_data=AnswerCBFactory(action='next').pack())
+        )
 
 
     # кнопки для выбора ответа
     for indx, answer in enumerate(answers):
         builder.add(InlineKeyboardButton(
             text=f'{indx + 1}',
-            callback_data=AnswerCBFactory(action='get_answer', val=answer['correct']).pack())
+            callback_data=AnswerCBFactory(action='answer', val=answer['correct']).pack())
         )
 
     builder.adjust(2, 4)
