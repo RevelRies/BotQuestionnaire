@@ -46,8 +46,9 @@ async def get_random_questions_notheme(message: Message):
     answers = await crud.get_answers(question=question)
 
     text = await crud.answers_output(answers, question)
+    markup = await keyboards.get_answers_inline_keyboard(answers)
 
-    await message.answer(text=text)
+    await message.answer(text=text, reply_markup=markup)
 
 # ------------------------------------
 
@@ -59,8 +60,9 @@ async def get_random_questions_theme(query: CallbackQuery, callback_data: Themes
     answers = await crud.get_answers(question=question)
 
     text = await crud.answers_output(answers, question)
+    markup = await keyboards.get_answers_inline_keyboard(answers)
 
-    await query.message.answer(text=text)
+    await query.message.edit_text(text=text, reply_markup=markup)
 # ------------------------------------
 
 
