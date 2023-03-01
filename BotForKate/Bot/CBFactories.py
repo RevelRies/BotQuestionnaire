@@ -7,4 +7,4 @@ class ThemesCBFactory(CallbackData, prefix='themes'):
 
 class AnswerCBFactory(CallbackData, prefix='answers'):
     action: str
-    val: bool
+    val: Optional[bool]

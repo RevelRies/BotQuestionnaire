@@ -59,7 +59,7 @@ async def answers_output(answers, question):
 
     answ_out = '\n'.join(answer_name)
 
-    text = f'Вопрос\n' \
+    text = f'Вопрос:\n' \
            f'{question["name"]}\n' \
            f'-------------------\n' \
            f'Ответы:\n' \
