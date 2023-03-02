@@ -43,27 +43,25 @@ async def get_answers(question):
     async with aiohttp.ClientSession() as session:
         async with session.post(url='http://127.0.0.1:8000/answers/', data=data_to) as response:
 
-            return await response.json()
+            answers =  await response.json()
 
-# функция для красивого вывода всех вопросов
-async def answers_output(answers, question):
-    # засовываем в список res name ответов
-    answer_name = [answ['name'] for answ in answers]
+            # перемешиваем ответы
+            shuffle(answers)
 
-    # перемешиваем ответы
-    shuffle(answer_name)
+            # засовываем в список res name ответов
+            answer_name = [answ['name'] for answ in answers]
 
-    # красивый вывод ответов
-    for indx, answ in enumerate(answer_name):
-        answer_name[indx] = f'{indx + 1}. {answ}'
+            # красивый вывод ответов
+            for indx, answ in enumerate(answer_name):
+                answer_name[indx] = f'{indx + 1}. {answ}'
 
-    answ_out = '\n'.join(answer_name)
+            answ_out = '\n'.join(answer_name)
 
-    text = f'Вопрос:\n' \
-           f'{question["name"]}\n' \
-           f'-------------------\n' \
-           f'Ответы:\n' \
-           f'{answ_out}'
-    return text
+            text = f'Вопрос:\n' \
+                   f'{question["name"]}\n' \
+                   f'-------------------\n' \
+                   f'Ответы:\n' \
+                   f'{answ_out}'
+            return answers, text
 
 

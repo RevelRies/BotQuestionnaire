@@ -48,9 +48,9 @@ async def chose_theme(message: Message):
 @dp.message(Text(text='Все вопросы'))
 async def get_random_questions_notheme(message: Message):
     question = await crud.get_random_question()
-    answers = await crud.get_answers(question=question)
+    answers, text = await crud.get_answers(question=question)
 
-    text = await crud.answers_output(answers, question)
+    # text = await crud.answers_output(answers, question)
     markup = await keyboards.get_answers_inline_keyboard(answers)
 
     await message.answer(text=text, reply_markup=markup)
@@ -63,9 +63,9 @@ async def get_random_questions_notheme(message: Message):
 @dp.callback_query(ThemesCBFactory.filter())
 async def get_random_questions_theme(query: CallbackQuery, callback_data: ThemesCBFactory):
     question = await crud.get_random_question(theme=callback_data.theme)
-    answers = await crud.get_answers(question=question)
+    answers, text = await crud.get_answers(question=question)
 
-    text = await crud.answers_output(answers, question)
+    # text = await crud.answers_output(answers, question)
     markup = await keyboards.get_answers_inline_keyboard(answers, theme=callback_data.theme)
 
     await query.message.edit_text(text=text, reply_markup=markup)
