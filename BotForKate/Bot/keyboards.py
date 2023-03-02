@@ -1,20 +1,64 @@
-from aiogram.types import KeyboardButton, InlineKeyboardButton
-from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
-def main_keyboard():
-    builder = ReplyKeyboardBuilder()
-    btn1 = KeyboardButton(text='Выбрать тему')
-    btn2 = KeyboardButton(text='Все вопросы')
+import asyncio
 
-    builder.add(btn1, btn2)
-    builder.adjust(2)
-    markup = builder.as_markup(resize_keyboard=True)
+from aiogram.types import KeyboardButton, InlineKeyboardButton
+from aiogram.utils.keyboard import ReplyKeyboardBuilder, ReplyKeyboardMarkup, InlineKeyboardBuilder
+from CBFactories import ThemesCBFactory, AnswerCBFactory
+
+# клавиатура главного меню
+async def main_keyboard():
+    markup = ReplyKeyboardMarkup(
+        keyboard=[
+        [KeyboardButton(text='Выбрать тему'),
+        KeyboardButton(text='Все вопросы')]],
+        resize_keyboard=True,
+        one_time_keyboard=True)
+
     return markup
 
-def themes_inline_keyboard(themes):
+# клавиатура при нажатии на выбор темы
+async def themes_inline_keyboard(themes):
     builder = InlineKeyboardBuilder()
     for theme in themes:
-        builder.add(InlineKeyboardButton(text=theme, callback_data=f'theme_{theme}'))
+        theme_name = theme['name']
+        builder.add(InlineKeyboardButton(
+            text=theme_name,
+            callback_data=ThemesCBFactory(theme=theme_name).pack()
+        )
+    )
 
     builder.adjust(1)
     murkup = builder.as_markup()
     return murkup
+
+# клавиатура ответов которая выводится после получения вопроса
+async def get_answers_inline_keyboard(answers, theme=None):
+    builder = InlineKeyboardBuilder()
+
+    # кнопки для возврата в главное меню и следующего вопроса
+    builder.add(InlineKeyboardButton(text='Главное меню',
+                                     callback_data=AnswerCBFactory(action='main_menu').pack()))
+
+    # если нужен следующий вопрос по определенной тебе то кнопке "Следующий" добавляется theme
+    if theme:
+        builder.add(InlineKeyboardButton(
+            text='Следующий',
+            callback_data=AnswerCBFactory(action='next', theme=theme).pack())
+                   )
+    else:
+        builder.add(InlineKeyboardButton(
+            text='Следующий',
+            callback_data=AnswerCBFactory(action='next').pack())
+        )
+
+
+    # кнопки для выбора ответа
+    for indx, answer in enumerate(answers):
+        builder.add(InlineKeyboardButton(
+            text=f'{indx + 1}',
+            callback_data=AnswerCBFactory(action='answer', val=answer['correct']).pack())
+        )
+
+    builder.adjust(2, 4)
+    markup = builder.as_markup()
+    return markup
+
