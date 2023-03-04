@@ -25,19 +25,25 @@ logging.basicConfig(level=logging.INFO)
 
 @dp.message(Command(commands=['start']))
 async def start_message(message: Message):
-    text = 'Приветственное сообщениие'
+    text = 'Привет👋\n' \
+           'Я твой личный бот-опросник📋\n' \
+           'Сдесь ты можешь добавлять свои вопросы❓, а потом я буду проводить тестирование на их знание\n\n' \
+           'ℹ️\n' \
+           'Чтобы выбрать тестирование по определенной теме нажми "Выбрать тему"\n' \
+           'Чтобы выбрать тестирование по всем темам нажми "Все темы"'
+
     markup = await keyboards.main_keyboard()
 
 
-    await message.answer(text=text, reply_markup=markup)
+    msg = await message.answer(text=text, reply_markup=markup)
     await message.delete()
-
+    await crud.delete_message(message=msg, time_sec=60)
 
 # обработка кнопок главного меню
 # ------------------------------------
 @dp.message(Text(text='Выбрать тему'))
 async def chose_theme(message: Message):
-    text = f'Здесь будут темы'
+    text = f'⏬Выберете тему⏬'
     themes = await crud.get_themes()
     markup = await keyboards.themes_inline_keyboard(themes)
 
@@ -45,7 +51,7 @@ async def chose_theme(message: Message):
     await message.delete()
 
 
-@dp.message(Text(text='Все вопросы'))
+@dp.message(Text(text='Все темы'))
 async def get_random_questions_notheme(message: Message):
     question = await crud.get_random_question()
     answers, text = await crud.get_answers(question=question)
@@ -62,11 +68,11 @@ async def get_random_questions_notheme(message: Message):
 # ------------------------------------
 @dp.callback_query(ThemesCBFactory.filter())
 async def get_random_questions_theme(query: CallbackQuery, callback_data: ThemesCBFactory):
-    question = await crud.get_random_question(theme=callback_data.theme)
+    question = await crud.get_random_question(theme_pk=callback_data.theme_pk)
     answers, text = await crud.get_answers(question=question)
 
     # text = await crud.answers_output(answers, question)
-    markup = await keyboards.get_answers_inline_keyboard(answers, theme=callback_data.theme)
+    markup = await keyboards.get_answers_inline_keyboard(answers, theme_pk=callback_data.theme_pk)
 
     await query.message.edit_text(text=text, reply_markup=markup)
 # ------------------------------------
@@ -79,8 +85,9 @@ async def bakc_to_main_menu(query: CallbackQuery, calback_data=AnswerCBFactory):
     text = 'Главное меню'
     markup = await keyboards.main_keyboard()
 
+    msg = await query.message.answer(text=text, reply_markup=markup)
     await query.message.delete()
-    await query.message.answer(text=text, reply_markup=markup)
+    await crud.delete_message(message=msg, time_sec=30)
 
 # обработка кнопки для получения следующего вопроса
 @dp.callback_query(AnswerCBFactory.filter(F.action=='next'))

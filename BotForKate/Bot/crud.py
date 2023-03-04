@@ -1,6 +1,9 @@
 import aiohttp
 import asyncio
+
 from random import choice, shuffle
+from aiogram.types import Message
+
 
 # получение всех тем
 async def get_themes():
@@ -13,17 +16,18 @@ async def get_themes():
 
 # получение рандомного вопроса по всем темам или по определенной
 # если нужна определенная тема то атрибут theme != None
-async def get_random_question(theme=None):
+async def get_random_question(theme_pk=None):
     # если надо получить вопрос по всем темам
-    if not theme:
+    if not theme_pk:
         async with aiohttp.ClientSession() as session:
             async with session.get('http://127.0.0.1:8000/questions/') as response:
                 res = await response.json()
 
     # если недо получить вопрос по определенной теме
-    if theme:
+    if theme_pk:
+        data = {'pk': theme_pk}
         async with aiohttp.ClientSession() as session:
-            async with session.post(url='http://127.0.0.1:8000/themes/', data={'name': theme}) as response:
+            async with session.post(url='http://127.0.0.1:8000/themes/', data=data) as response:
                 res = await response.json()
 
     # берем рандомный вопрос из тех что получили в response
@@ -43,7 +47,7 @@ async def get_answers(question):
     async with aiohttp.ClientSession() as session:
         async with session.post(url='http://127.0.0.1:8000/answers/', data=data_to) as response:
 
-            answers =  await response.json()
+            answers = await response.json()
 
             # перемешиваем ответы
             shuffle(answers)
@@ -64,4 +68,9 @@ async def get_answers(question):
                    f'{answ_out}'
             return answers, text
 
+
+# удаление сообщения
+async def delete_message(message: Message, time_sec: int = 10):
+    await asyncio.sleep(time_sec)
+    await message.delete()
 

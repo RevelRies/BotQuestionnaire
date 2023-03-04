@@ -2,10 +2,14 @@ from aiogram.filters.callback_data import CallbackData
 from typing import Optional
 
 class ThemesCBFactory(CallbackData, prefix='themes'):
-    theme: str
+    theme_pk: int
 
 
 class AnswerCBFactory(CallbackData, prefix='answers'):
     action: str
     val: Optional[bool]
-    theme: str | None
+    theme_pk: int | None
+
+
+class MainMenuCBFactory(CallbackData, prefix='mainmenu'):
+    action: str
