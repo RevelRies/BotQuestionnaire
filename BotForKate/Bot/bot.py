@@ -62,11 +62,11 @@ async def get_random_questions_notheme(message: Message):
 # ------------------------------------
 @dp.callback_query(ThemesCBFactory.filter())
 async def get_random_questions_theme(query: CallbackQuery, callback_data: ThemesCBFactory):
-    question = await crud.get_random_question(theme=callback_data.theme)
+    question = await crud.get_random_question(theme_pk=callback_data.theme_pk)
     answers, text = await crud.get_answers(question=question)
 
     # text = await crud.answers_output(answers, question)
-    markup = await keyboards.get_answers_inline_keyboard(answers, theme=callback_data.theme)
+    markup = await keyboards.get_answers_inline_keyboard(answers, theme_pk=callback_data.theme_pk)
 
     await query.message.edit_text(text=text, reply_markup=markup)
 # ------------------------------------

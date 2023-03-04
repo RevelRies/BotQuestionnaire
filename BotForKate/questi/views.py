@@ -7,11 +7,18 @@ from .models import Theme, Question, Answer
 class ThemeView(APIView):
     def get(self, request: Request):
         themes = Theme.objects.all()
-        return Response(ThemeSerializer(themes, many=True).data)
+        themes = ThemeSerializer(themes, many=True).data
 
+        res = []
+        for theme in themes:
+            theme_name = theme['name']
+            theme_pk = Theme.objects.get(name=theme_name).pk
+            res.append({'name': theme_name, 'pk': theme_pk})
+
+        return Response(res)
 
     def post(self, request: Request):
-        theme_pk = Theme.objects.get(name=request.data['name']).pk
+        theme_pk = request.data['pk']
         questions = Question.objects.filter(theme=theme_pk)
         return Response(ThemeSerializer(questions, many=True).data)
 
