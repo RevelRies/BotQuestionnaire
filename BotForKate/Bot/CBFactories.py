@@ -9,3 +9,7 @@ class AnswerCBFactory(CallbackData, prefix='answers'):
     action: str
     val: Optional[bool]
     theme_pk: int | None
+
+
+class MainMenuCBFactory(CallbackData, prefix='mainmenu'):
+    action: str

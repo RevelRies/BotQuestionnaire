@@ -1,6 +1,9 @@
 import aiohttp
 import asyncio
+
 from random import choice, shuffle
+from aiogram.types import Message
+
 
 # получение всех тем
 async def get_themes():
@@ -65,4 +68,9 @@ async def get_answers(question):
                    f'{answ_out}'
             return answers, text
 
+
+# удаление сообщения
+async def delete_message(message: Message, time_sec: int = 10):
+    await asyncio.sleep(time_sec)
+    await message.delete()
 

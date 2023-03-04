@@ -29,9 +29,9 @@ async def start_message(message: Message):
     markup = await keyboards.main_keyboard()
 
 
-    await message.answer(text=text, reply_markup=markup)
+    msg = await message.answer(text=text, reply_markup=markup)
     await message.delete()
-
+    await crud.delete_message(message=msg, time_sec=30)
 
 # обработка кнопок главного меню
 # ------------------------------------
@@ -79,8 +79,9 @@ async def bakc_to_main_menu(query: CallbackQuery, calback_data=AnswerCBFactory):
     text = 'Главное меню'
     markup = await keyboards.main_keyboard()
 
+    msg = await query.message.answer(text=text, reply_markup=markup)
     await query.message.delete()
-    await query.message.answer(text=text, reply_markup=markup)
+    await crud.delete_message(message=msg, time_sec=30)
 
 # обработка кнопки для получения следующего вопроса
 @dp.callback_query(AnswerCBFactory.filter(F.action=='next'))
