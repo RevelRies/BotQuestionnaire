@@ -9,7 +9,7 @@ async def main_keyboard():
     markup = ReplyKeyboardMarkup(
         keyboard=[
         [KeyboardButton(text='Выбрать тему'),
-        KeyboardButton(text='Все вопросы')]],
+        KeyboardButton(text='Все темы')]],
         resize_keyboard=True,
         one_time_keyboard=True)
 
