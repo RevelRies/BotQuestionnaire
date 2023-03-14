@@ -5,10 +5,11 @@ import keyboards
 
 from CBFactories import ThemesCBFactory, AnswerCBFactory
 # отдельные импорты
+import os
 import logging
 import asyncio
 from magic_filter import F
-
+from dotenv import load_dotenv
 
 # импорты aiogram
 from aiogram.dispatcher.dispatcher import Dispatcher
@@ -17,7 +18,9 @@ from aiogram.filters import Command, Text
 from aiogram.types import Message
 from aiogram.filters.callback_data import CallbackQuery
 
-token = config.bot_token
+load_dotenv()
+
+token = os.getenv('BOTTOKEN')
 
 bot = Bot(token)
 dp = Dispatcher()
