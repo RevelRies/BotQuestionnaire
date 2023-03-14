@@ -1,5 +1,4 @@
 # файлы проекта
-import config
 import crud
 import fsm_forms
 import keyboards
@@ -9,6 +8,7 @@ from CBFactories import ThemesCBFactory, AnswerCBFactory
 import logging
 import asyncio
 from magic_filter import F
+
 
 # импорты aiogram
 from aiogram.dispatcher.dispatcher import Dispatcher
