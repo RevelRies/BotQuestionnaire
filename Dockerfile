@@ -1,8 +1,8 @@
 FROM python:3.10
 
 WORKDIR /app
-COPY . /app
-COPY ./Bot /app
+COPY bbbot /app
+COPY Bot /app
 
 
 RUN python -m pip install --upgrade pip
