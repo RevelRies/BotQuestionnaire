@@ -74,3 +74,4 @@ async def delete_message(message: Message, time_sec: int = 10):
     await asyncio.sleep(time_sec)
     await message.delete()
 
+

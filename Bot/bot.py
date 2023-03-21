@@ -40,7 +40,7 @@ async def start_message(message: Message):
 
     msg = await message.answer(text=text, reply_markup=markup)
     await message.delete()
-    await crud.delete_message(message=msg, time_sec=60)
+    await crud.delete_message(message=msg, time_sec=30)
 
 # обработка кнопок главного меню
 # ------------------------------------
@@ -59,12 +59,23 @@ async def get_random_questions_notheme(message: Message):
     question = await crud.get_random_question()
     answers, text = await crud.get_answers(question=question)
 
-    # text = await crud.answers_output(answers, question)
     markup = await keyboards.get_answers_inline_keyboard(answers)
 
     await message.answer(text=text, reply_markup=markup)
     await message.delete()
 
+@dp.message(Text(text='Добавить вопросы'))
+async def add_questions(message: Message):
+    text = 'Чтобы добавить вопросы отправь мне имя_файла.txt в котором темы, вопросы и ответы расположенны в следующем формате:\n\n' \
+           '{theme: Название темы,\n' \
+           'question: Вопрос этой темы,\n' \
+           'answers: правильный ответ:Неправильный ответ:Неправильный ответ}\n\n' \
+           'Важно! Один вопрос с темой и ответами должны располагаться на одной строке в файле'
+
+
+    msg = await message.answer(text=text)
+    await message.delete()
+    await crud.delete_message(message=msg, time_sec=30)
 # ------------------------------------
 
 # обработка запросов с инлайн клавиатуры тем
@@ -74,7 +85,6 @@ async def get_random_questions_theme(query: CallbackQuery, callback_data: Themes
     question = await crud.get_random_question(theme_pk=callback_data.theme_pk)
     answers, text = await crud.get_answers(question=question)
 
-    # text = await crud.answers_output(answers, question)
     markup = await keyboards.get_answers_inline_keyboard(answers, theme_pk=callback_data.theme_pk)
 
     await query.message.edit_text(text=text, reply_markup=markup)
