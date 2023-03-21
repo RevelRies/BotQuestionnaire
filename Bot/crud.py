@@ -75,3 +75,5 @@ async def delete_message(message: Message, time_sec: int = 10):
     await message.delete()
 
 
+# добавление вопросов в базу данных из файла
+# async def add_questions()

@@ -121,6 +121,13 @@ async def show_answer(query: CallbackQuery, callback_data=AnswerCBFactory):
 # ------------------------------------
 
 
+# Обработка фсм состояний
+# ------------------------------------
+
+
+# ------------------------------------
+
+
 
 async def main() -> None:
     await dp.start_polling(bot)
