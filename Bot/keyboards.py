@@ -9,7 +9,9 @@ async def main_keyboard():
     markup = ReplyKeyboardMarkup(
         keyboard=[
         [KeyboardButton(text='Выбрать тему'),
-        KeyboardButton(text='Все темы')]],
+        KeyboardButton(text='Все темы')],
+        [KeyboardButton(text='Добавить вопросы')]
+        ],
         resize_keyboard=True,
         one_time_keyboard=True)
 
@@ -62,4 +64,6 @@ async def get_answers_inline_keyboard(answers, theme_pk=None):
     builder.adjust(2, 4)
     markup = builder.as_markup()
     return markup
+
+
 

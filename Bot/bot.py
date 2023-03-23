@@ -2,8 +2,10 @@
 import crud
 import fsm_forms
 import keyboards
+import os
 
 from CBFactories import ThemesCBFactory, AnswerCBFactory
+from fsm_forms import AddQuestion
 # отдельные импорты
 import logging
 import asyncio
@@ -15,15 +17,18 @@ from dotenv import load_dotenv
 from aiogram.dispatcher.dispatcher import Dispatcher
 from aiogram import Bot
 from aiogram.filters import Command, Text
-from aiogram.types import Message
+from aiogram.types import Message, Document, File
 from aiogram.filters.callback_data import CallbackQuery
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.storage.memory import MemoryStorage
 
 load_dotenv()
 
 token = os.getenv('BOTTOKEN')
+storage = MemoryStorage()
 
 bot = Bot(token)
-dp = Dispatcher()
+dp = Dispatcher(storage=storage)
 logging.basicConfig(level=logging.INFO)
 
 @dp.message(Command(commands=['start']))
@@ -40,7 +45,7 @@ async def start_message(message: Message):
 
     msg = await message.answer(text=text, reply_markup=markup)
     await message.delete()
-    await crud.delete_message(message=msg, time_sec=60)
+    await crud.delete_message(message=msg, time_sec=30)
 
 # обработка кнопок главного меню
 # ------------------------------------
@@ -59,11 +64,25 @@ async def get_random_questions_notheme(message: Message):
     question = await crud.get_random_question()
     answers, text = await crud.get_answers(question=question)
 
-    # text = await crud.answers_output(answers, question)
     markup = await keyboards.get_answers_inline_keyboard(answers)
 
     await message.answer(text=text, reply_markup=markup)
     await message.delete()
+
+@dp.message(Text(text='Добавить вопросы'))
+async def add_questions(message: Message, state: FSMContext):
+    text = 'Чтобы добавить вопросы отправь мне имя_файла.txt в котором темы, вопросы и ответы расположенны в следующем формате:\n\n' \
+           '{theme: Название темы,\n' \
+           'question: Вопрос этой темы,\n' \
+           'answers: правильный ответ:Неправильный ответ:Неправильный ответ}\n\n' \
+           'Важно! Один вопрос с темой и ответами должны располагаться на одной строке в файле'
+
+    # устанавливаем состояние при котором бот ожидает файл
+    await state.set_state(AddQuestion.file)
+
+    msg = await message.answer(text=text)
+    await message.delete()
+    await crud.delete_message(message=msg, time_sec=30)
 
 # ------------------------------------
 
@@ -74,7 +93,6 @@ async def get_random_questions_theme(query: CallbackQuery, callback_data: Themes
     question = await crud.get_random_question(theme_pk=callback_data.theme_pk)
     answers, text = await crud.get_answers(question=question)
 
-    # text = await crud.answers_output(answers, question)
     markup = await keyboards.get_answers_inline_keyboard(answers, theme_pk=callback_data.theme_pk)
 
     await query.message.edit_text(text=text, reply_markup=markup)
@@ -107,6 +125,26 @@ async def show_answer(query: CallbackQuery, callback_data=AnswerCBFactory):
         text = 'Неправильный ответ❌'
 
     await query.answer(text=text, show_alert=True)
+
+# ------------------------------------
+
+
+# Обработка фсм состояний
+# ------------------------------------
+@dp.message(AddQuestion.file)
+async def file_processing(message: Message, state: FSMContext):
+    file_id = message.document.file_id
+    file = await bot.get_file(file_id)
+    file_path = file.file_path
+
+    # скачиваем файл в текущую дерикторию\\User_docs\\ и называем его file.txt
+    await bot.download_file(file_path=file_path, destination=f"{os.getcwd()}\\Users_docs\\file.txt")
+
+    # открываем файл и читаем его содержимое
+    with open(file=f"{os.getcwd()}\\Users_docs\\file.txt", encoding='utf-8') as file:
+        text = file.read()
+
+    await message.answer(text=text)
 
 # ------------------------------------
 
