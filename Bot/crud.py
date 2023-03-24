@@ -1,5 +1,6 @@
 import aiohttp
 import asyncio
+import os
 
 from random import choice, shuffle
 from aiogram.types import Message
@@ -67,6 +68,9 @@ async def get_answers(question):
                    f'Ответы:\n' \
                    f'{answ_out}'
             return answers, text
+
+
+# добавление тем, вопросов и ответов в БД
 
 
 # удаление сообщения

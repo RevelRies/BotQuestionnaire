@@ -71,11 +71,9 @@ async def get_random_questions_notheme(message: Message):
 
 @dp.message(Text(text='Добавить вопросы'))
 async def add_questions(message: Message, state: FSMContext):
-    text = 'Чтобы добавить вопросы отправь мне имя_файла.txt в котором темы, вопросы и ответы расположенны в следующем формате:\n\n' \
-           '{theme: Название темы,\n' \
-           'question: Вопрос этой темы,\n' \
-           'answers: правильный ответ:Неправильный ответ:Неправильный ответ}\n\n' \
-           'Важно! Один вопрос с темой и ответами должны располагаться на одной строке в файле'
+    text = 'Чтобы добавить вопросы по этой теме отправь мне имя_файла.txt в вопросы и ответы расположенны в следующем формате:\n\n' \
+           'Вопрос : правильный ответ : неправильный ответ 1 : неправильный ответ 2 : неправильный ответ 3\n\n' \
+           'Важно! Вопрос с ответами на него должны располагаться на одной строке в файле'
 
     # устанавливаем состояние при котором бот ожидает файл
     await state.set_state(AddQuestion.file)
@@ -140,11 +138,9 @@ async def file_processing(message: Message, state: FSMContext):
     # скачиваем файл в текущую дерикторию\\User_docs\\ и называем его file.txt
     await bot.download_file(file_path=file_path, destination=f"{os.getcwd()}\\Users_docs\\file.txt")
 
-    # открываем файл и читаем его содержимое
-    with open(file=f"{os.getcwd()}\\Users_docs\\file.txt", encoding='utf-8') as file:
-        text = file.read()
+    
 
-    await message.answer(text=text)
+
 
 # ------------------------------------
 
