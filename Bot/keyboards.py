@@ -18,14 +18,26 @@ async def main_keyboard():
     return markup
 
 # клавиатура при нажатии на выбор темы
-async def themes_inline_keyboard(themes):
+async def themes_inline_keyboard(themes, add_questions: bool | None):
+    '''
+    функция возвращает инлайн клавиатуру с названиями тем. В случае когда нужно получить вопросы по этой теме
+    callback_data возвращает action get_question, а если нужно добавить вопросы action будет add_question
+    :param themes: все темы полученные из БД
+    :param add_question: параметр который указывает что делать при нажатии на инлайн кнопку с названием темы
+    :return: разметку клавиатуры
+    '''
+
     builder = InlineKeyboardBuilder()
+
+    action = 'add_questions' if add_questions else 'get_questions'
+
     for theme in themes:
         theme_name = theme['name']
         theme_pk = theme['pk']
         builder.add(InlineKeyboardButton(
             text=theme_name,
-            callback_data=ThemesCBFactory(theme_pk=theme_pk).pack()
+            callback_data=ThemesCBFactory(theme_pk=theme_pk,
+                                          action=action).pack()
         )
     )
 

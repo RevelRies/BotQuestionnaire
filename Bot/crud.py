@@ -71,6 +71,24 @@ async def get_answers(question):
 
 
 # добавление тем, вопросов и ответов в БД
+async def add_questions(theme_pk):
+    # список в котором каждый элемент - это строка прочитанная из файла который отправил пользователь
+
+    with open(file=f"{os.getcwd()}\\Users_docs\\file.txt", encoding='utf-8') as file:
+        rows = file.read()
+
+    # объек который будет передан в post запросе
+    data_to = {'theme_pk': theme_pk, 'rows': rows}
+
+    # передаем в запрос объект который содержит имя вопроса
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url='http://127.0.0.1:8000/add_questions/', data=data_to) as response:
+
+            res = response
+            if res:
+                return 'Вопросы добавлены'
+            return 'Произошла ошибка при добавлении'
+
 
 
 # удаление сообщения
