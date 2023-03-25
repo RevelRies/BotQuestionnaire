@@ -53,7 +53,7 @@ async def start_message(message: Message):
 async def chose_theme(message: Message):
     text = f'⏬Выберете тему⏬'
     themes = await crud.get_themes()
-    markup = await keyboards.themes_inline_keyboard(themes)
+    markup = await keyboards.themes_inline_keyboard(themes, add_questions=False)
 
     await message.answer(text=text, reply_markup=markup)
     await message.delete()
@@ -70,25 +70,20 @@ async def get_random_questions_notheme(message: Message):
     await message.delete()
 
 @dp.message(Text(text='Добавить вопросы'))
-async def add_questions(message: Message, state: FSMContext):
-    text = 'Чтобы добавить вопросы отправь мне имя_файла.txt в котором темы, вопросы и ответы расположенны в следующем формате:\n\n' \
-           '{theme: Название темы,\n' \
-           'question: Вопрос этой темы,\n' \
-           'answers: правильный ответ:Неправильный ответ:Неправильный ответ}\n\n' \
-           'Важно! Один вопрос с темой и ответами должны располагаться на одной строке в файле'
+async def add_questions(message: Message):
+    text = 'Выберите тему к которой хотите добавить вопросы'
+    themes = await crud.get_themes()
+    markup = await keyboards.themes_inline_keyboard(themes, add_questions=True)
 
-    # устанавливаем состояние при котором бот ожидает файл
-    await state.set_state(AddQuestion.file)
-
-    msg = await message.answer(text=text)
+    await message.answer(text=text, reply_markup=markup)
     await message.delete()
-    await crud.delete_message(message=msg, time_sec=30)
 
 # ------------------------------------
 
-# обработка запросов с инлайн клавиатуры тем
+# инлайн клавиатуры тем
 # ------------------------------------
-@dp.callback_query(ThemesCBFactory.filter())
+# обработка запросов с инлайн клавиатуры тем в режиме получения вопросов по этой теме
+@dp.callback_query(ThemesCBFactory.filter(F.action=='get_questions'))
 async def get_random_questions_theme(query: CallbackQuery, callback_data: ThemesCBFactory):
     question = await crud.get_random_question(theme_pk=callback_data.theme_pk)
     answers, text = await crud.get_answers(question=question)
@@ -96,6 +91,20 @@ async def get_random_questions_theme(query: CallbackQuery, callback_data: Themes
     markup = await keyboards.get_answers_inline_keyboard(answers, theme_pk=callback_data.theme_pk)
 
     await query.message.edit_text(text=text, reply_markup=markup)
+
+
+# обработка запросов с инлайн клавиатуры тем в режиме добавления вопросов по этой теме
+@dp.callback_query(ThemesCBFactory.filter(F.action=='add_questions'))
+async def add_questions(query: CallbackQuery, callback_data: ThemesCBFactory, state: FSMContext):
+    text = 'Чтобы добавить вопросы по этой теме отправь мне имя_файла.txt в вопросы и ответы расположенны в следующем формате:\n\n' \
+           'Вопрос : правильный ответ : неправильный ответ 1 : неправильный ответ 2 : неправильный ответ 3\n\n' \
+           'Важно! Вопрос с ответами на него должны располагаться на одной строке в файле'
+
+    await state.update_data(theme_pk=callback_data.theme_pk)
+    await state.set_state(AddQuestion.file)
+
+    await query.message.edit_text(text=text)
+
 # ------------------------------------
 
 # обработка запросов с инлайн клавиатуры ответов
@@ -131,6 +140,7 @@ async def show_answer(query: CallbackQuery, callback_data=AnswerCBFactory):
 
 # Обработка фсм состояний
 # ------------------------------------
+# загрузка файла с вопросами
 @dp.message(AddQuestion.file)
 async def file_processing(message: Message, state: FSMContext):
     file_id = message.document.file_id
@@ -140,12 +150,15 @@ async def file_processing(message: Message, state: FSMContext):
     # скачиваем файл в текущую дерикторию\\User_docs\\ и называем его file.txt
     await bot.download_file(file_path=file_path, destination=f"{os.getcwd()}\\Users_docs\\file.txt")
 
-    # открываем файл и читаем его содержимое
-    with open(file=f"{os.getcwd()}\\Users_docs\\file.txt", encoding='utf-8') as file:
-        text = file.read()
+    # получаем pk выбранной темы и отправляем его в crud для взаимодействия с БД
+    data = await state.get_data()
+    res = await crud.add_questions(theme_pk=data['theme_pk'])
 
-    await message.answer(text=text)
+    # сбрасываем состояние и удаляем все данные
+    await state.clear()
 
+    # возвращаем пользователю текстовове сообщение с результатом добавления
+    await message.answer(text=res)
 # ------------------------------------
 
 

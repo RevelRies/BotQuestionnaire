@@ -3,6 +3,7 @@ from typing import Optional
 
 class ThemesCBFactory(CallbackData, prefix='themes'):
     theme_pk: int
+    action: str
 
 
 class AnswerCBFactory(CallbackData, prefix='answers'):
